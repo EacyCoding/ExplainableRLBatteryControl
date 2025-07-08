@@ -12,6 +12,24 @@ from urllib3.util.retry import Retry
 from citylearn.__init__ import __version__
 from citylearn.utilities import join_url, read_json, read_yaml, write_json
 
+# ────────────────────────────────────────────────────────────────────────────
+# Patch: Resolve staticmethod join_url so it can be called like a normal function
+from citylearn.utilities import join_url as _join_url  # absolute import of the original
+
+def join_url(*parts):
+    """
+    Wrapper function that checks if _join_url is a staticmethod object
+    and, if so, retrieves its underlying function via __func__.
+    This ensures join_url() is always callable.
+    """
+    # If _join_url is a staticmethod, __func__ gives the real function;
+    # otherwise fall back to _join_url itself.
+    real_func = getattr(_join_url, "__func__", _join_url)
+    return real_func(*parts)
+# ────────────────────────────────────────────────────────────────────────────
+
+
+
 LOGGER = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
 

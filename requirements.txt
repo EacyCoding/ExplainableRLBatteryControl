@@ -9,3 +9,6 @@ simplejson
 torch
 torchvision
 openstudio<=3.3.0
+ray[rllib]
+stable-baselines3[extra]
+tensorboard
