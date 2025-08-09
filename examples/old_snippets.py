@@ -343,3 +343,15 @@ maximiert das immer gegen +/- unendlich
 - workaround: calculate cost without batterie/pv and with it and maximize the difference
 """
 # --------------------------------------------------------
+"""
+obs_dict, reward_dict, terminated, truncated, _ = env.step(action)
+obs    = obs_dict["0"]
+reward = reward_dict["0"]
+done   = terminated["0"] or truncated["0"]
+
+action = self.act(obs)
+self.history.append((obs, action, reward))
+total_reward += reward
+"""
+
+# --------------------------------------------------------
