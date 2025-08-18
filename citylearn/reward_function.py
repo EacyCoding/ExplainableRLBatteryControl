@@ -73,6 +73,33 @@ class RewardFunction:
             reward = reward_list
 
         return reward
+    
+class CostReward(RewardFunction):
+    """Cost reward function class.
+    The reward is calculated as the negative cost.
+
+    Parameters
+    ----------
+    env_metadata: Mapping[str, Any]:
+        General static information about the environment.
+    """
+
+    def __init__(self, env_metadata: Mapping[str, Any]):
+        super().__init__(env_metadata)
+
+    def calculate(self, observations: List[Mapping[str, Union[int, float]]]) -> List[float]:
+        net_electricity_consumption = [o['net_electricity_consumption'] for o in observations]
+        price = [o['electricity_pricing'] for o in observations]
+        reward_list = [-(max(n, 0.0) * p) for n, p in zip(net_electricity_consumption, price)]
+        # with electricity export revenue:
+        # reward_list = [-(n * p) for n, p in zip(net_electricity_consumption, price)]
+
+        if self.central_agent:
+            reward = [sum(reward_list)]
+        else:
+            reward = reward_list
+        
+        return reward
 
 class MARL(RewardFunction):
     """MARL reward function class.

@@ -984,7 +984,7 @@ class Building(Environment):
             'cooling_demand': self.__energy_from_cooling_device[self.time_step] + abs(min(self.cooling_storage.energy_balance[self.time_step], 0.0)),
             'heating_demand': self.__energy_from_heating_device[self.time_step] + abs(min(self.heating_storage.energy_balance[self.time_step], 0.0)),
             'dhw_demand': self.__energy_from_dhw_device[self.time_step] + abs(min(self.dhw_storage.energy_balance[self.time_step], 0.0)),
-            'net_electricity_consumption': self.net_electricity_consumption[self.time_step],
+            'net_electricity_consumption': self.net_electricity_consumption[self.time_step - 1 if self.time_step > 0 else 0],
             'cooling_electricity_consumption': self.cooling_electricity_consumption[self.time_step],
             'heating_electricity_consumption': self.heating_electricity_consumption[self.time_step],
             'dhw_electricity_consumption': self.dhw_electricity_consumption[self.time_step],
