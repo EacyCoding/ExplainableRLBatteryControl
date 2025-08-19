@@ -355,7 +355,7 @@ total_reward += reward
 """
 
 # --------------------------------------------------------
-
+"""
 {'conditions': [
         {'field':'soc','op':'<=','threshold_name':'soc_strong_charge'}], 
         'action':'strong_charge'}, 
@@ -377,4 +377,16 @@ total_reward += reward
         {'field':'soc','op':'>','threshold_name':'soc_mild_discharge'},
         {'field':'price','op':'>','threshold_name':'price_low'}
     ], 'action':'mild_discharge'}   
-# --
+"""
+# ----------------------------------
+"""
+df['cum_reward'] = df['reward'].cumsum()
+    plt.figure()
+    plt.plot(df['timestep'], df['cum_reward'],  label=f'Cumulative {type(env.reward_function).__name__}', color="C0")
+    plt.xlabel('Timestep'); plt.ylabel(f'Cumulative {type(env.reward_function).__name__}'); plt.title(f'Cumulative {type(env.reward_function).__name__} over time')
+    plt.grid(True)
+    plt.legend(loc="upper right")
+    plt.tight_layout()
+    plt.show()
+"""
+# -------------------------------------------
