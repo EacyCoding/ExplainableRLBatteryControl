@@ -355,3 +355,26 @@ total_reward += reward
 """
 
 # --------------------------------------------------------
+
+{'conditions': [
+        {'field':'soc','op':'<=','threshold_name':'soc_strong_charge'}], 
+        'action':'strong_charge'}, 
+    {'conditions': [
+        #{'field':'solar_generation','op':'>','threshold_name':'solar_high'}, 
+        {'field':'soc','op':'<=','threshold_name':'soc_mild_discharge'}], 
+        'action':'strong_charge'},
+    # Mild charge if still low SOC
+    {'conditions': [
+        {'field':'soc','op':'<','threshold_name':'soc_mild_charge'}], 
+        'action':'mild_charge'},
+    # Strong discharge if high SOC and high price
+    {'conditions': [
+        {'field':'soc','op':'>=','threshold_name':'soc_strong_discharge'},
+        {'field':'price','op':'>','threshold_name':'price_high'}
+    ], 'action':'strong_discharge'},
+    # Mild discharge if moderately high SOC and price not low
+    {'conditions': [
+        {'field':'soc','op':'>','threshold_name':'soc_mild_discharge'},
+        {'field':'price','op':'>','threshold_name':'price_low'}
+    ], 'action':'mild_discharge'}   
+# --
