@@ -390,3 +390,23 @@ df['cum_reward'] = df['reward'].cumsum()
     plt.show()
 """
 # -------------------------------------------
+
+"""
+# DQN model using the discretized CityLearn environment
+model = DQN(
+    policy='MlpPolicy',
+    env=train_env,
+    learning_rate=3e-4,
+    buffer_size=100_000,
+    batch_size=128,
+    learning_starts=2_000,
+    train_freq=256,
+    target_update_interval=500,
+    exploration_fraction=0.3,
+    exploration_initial_eps=1.0,
+    exploration_final_eps=0.02,
+    gamma=0.98,
+    verbose=1,
+    policy_kwargs=dict(net_arch=[256, 256, 256], activation_fn=th.nn.ReLU),
+)
+"""
