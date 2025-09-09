@@ -410,3 +410,82 @@ model = DQN(
     policy_kwargs=dict(net_arch=[256, 256, 256], activation_fn=th.nn.ReLU),
 )
 """
+
+# ----------------------------------------------
+
+"""
+- A2C -
+schema_eval = copy.deepcopy(schema_1b)
+eval_env = CityLearnEnv(schema_eval, central_agent=True)
+eval_env = NormalizedObservationWrapper(eval_env)
+eval_env = StableBaselines3Wrapper(eval_env)
+eval_env = DiscretizeActionWrapper(eval_env, n_bins=5)
+print('Eval action_space:', eval_env.action_space)
+
+model = A2C.load("a2c_01")
+print(f"A2C model loaded from {os.path.abspath('a2c_01')}")
+
+# Enhanced evaluation: collect actions and rewards, print KPIs and timings.
+def evaluate_with_metrics(model, env, episodes=5, deterministic=True, render=False):
+    ep_metrics, all_step_rewards, all_kpis, all_actions = [], [], [], []
+    t_global_start = time.time()
+
+    def action_to_frac(env, action, b_idx=0):
+        # Returns per-dimension action as fractions in [-1,1]
+        if isinstance(env.action_space, gym.spaces.Discrete):
+            return np.array([INT_TO_FRAC[int(action)]], dtype=np.float32)
+        elif isinstance(env.action_space, gym.spaces.MultiDiscrete):
+            a = np.asarray(action, dtype=int)
+            return INT_TO_FRAC[a]
+        else:
+            # Box: already continuous in [-1,1]
+            return np.asarray(action, dtype=np.float32)
+
+    for ep in range(1, episodes+1):
+        obs, _ = env.reset()
+        done = False
+        ep_ret, ep_len = 0.0, 0
+        step_rewards = []
+        action_list = []
+        t_ep_start = time.time()
+        while not done:
+            action, _ = model.predict(obs, deterministic=deterministic)
+            # Log fractions (fixes wrong histogram)
+            action_logged = action_to_frac(env, action, b_idx=0)
+            action_list.append(action_logged)
+
+            obs, r, terminated, truncated, info = env.step(action)
+            done = bool(terminated or truncated)
+            ep_ret += float(r)
+            step_rewards.append(float(r))
+            ep_len += 1
+            if render:
+                env.render()
+
+        kpis = env.unwrapped.evaluate()
+        all_kpis.append(kpis)
+        all_actions.append(np.vstack(action_list))
+        t_ep = time.time() - t_ep_start
+        steps_per_sec = ep_len / max(t_ep, 1e-9)
+        ep_metrics.append({
+            'episode': ep, 'cumulative reward': ep_ret, 'length': ep_len,
+            'mean_reward': ep_ret/ep_len if ep_len else np.nan,
+            'min_step_reward': float(np.min(step_rewards)),
+            'max_step_reward': float(np.max(step_rewards)),
+            'std_step_reward': float(np.std(step_rewards)),
+            'steps_per_sec': steps_per_sec, 'wall_time_s': t_ep
+        })
+        all_step_rewards.extend(step_rewards)
+        print(f"[Eval] Ep {ep}/{episodes} return={ep_ret:.3f} len={ep_len} "
+              f"mean={ep_ret/ep_len:.3f} time={t_ep:.2f}s speed={steps_per_sec:.1f} steps/s")
+
+    print(f"Total eval time: {time.time()-t_global_start:.2f}s  | Avg/ep: {(time.time()-t_global_start)/episodes:.2f}s")
+    metrics_df = pd.DataFrame(ep_metrics)
+    display(metrics_df)
+    return metrics_df, np.array(all_step_rewards), all_kpis, all_actions
+
+# Run evaluation (stochastic like PPO plots)
+metrics_stoch, step_rewards_stoch, kpis_stoch, actions_stoch = evaluate_with_metrics(
+    model, eval_env, episodes=EVAL_EPISODES, deterministic=False
+)
+"""

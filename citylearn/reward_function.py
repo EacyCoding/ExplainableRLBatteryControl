@@ -90,7 +90,7 @@ class CostReward(RewardFunction):
     def calculate(self, observations: List[Mapping[str, Union[int, float]]]) -> List[float]:
         net_electricity_consumption = [o['net_electricity_consumption'] for o in observations]
         price = [o['electricity_pricing'] for o in observations]
-        reward_list = [-(max(n, 0.0) * p) for n, p in zip(net_electricity_consumption, price)]
+        reward_list = [-(n * p) for n, p in zip(net_electricity_consumption, price)]
         # with electricity export revenue:
         # reward_list = [-(n * p) for n, p in zip(net_electricity_consumption, price)]
 
