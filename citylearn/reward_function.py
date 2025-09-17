@@ -101,6 +101,38 @@ class CostReward(RewardFunction):
         
         return reward
 
+class DeltaCostReward(RewardFunction):
+    def calculate(self, observations):
+        # cost_with - wie gehabt
+        price = np.array([o['electricity_pricing'] for o in observations], dtype=np.float32)
+        net_with = np.array([o['net_electricity_consumption'] for o in observations], dtype=np.float32)
+        cost_with = price * net_with
+
+        # net_without_storage = net_with - storage impact
+        # (falls Cooling/Heating/DHW-Speicher deaktiviert sind, sind deren Terme einfach 0)
+        stor_keys = [
+            'electrical_storage_electricity_consumption',
+            'cooling_storage_electricity_consumption',
+            'heating_storage_electricity_consumption',
+            'dhw_storage_electricity_consumption'
+        ]
+        stor = np.array([
+            sum(o.get(k, 0.0) for k in stor_keys) for o in observations
+        ], dtype=np.float32)
+
+        net_without = net_with - stor
+        cost_without = price * net_without
+
+        # Schritt-Reward = Einsparung
+        r = (cost_without - cost_with)  # >0 ist gut
+
+        # leichte Skalierung, damit PPOs Werte ~O(1) sehen
+        denom = max(1e-6, np.mean(np.abs(cost_without)))
+        r = r / denom
+
+        return [float(np.sum(r))] if self.central_agent else r.tolist()
+
+
 class MARL(RewardFunction):
     """MARL reward function class.
 
