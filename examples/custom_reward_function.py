@@ -1,14 +1,3 @@
-#***** HOW TO DEFINE A CUSTOM REWARD FUNCTION *****
-#
-# This module provides an example of how a custom
-# reward function class can be defined by 
-# inheriting the base RewardFunction class. Point 
-# to this module in reward_function:type object in 
-# schema.json to use this custom reward function
-# during simulation.
-#
-#********************** END ***********************
-
 from typing import Any, List, Mapping, Union
 from citylearn.reward_function import RewardFunction
 
